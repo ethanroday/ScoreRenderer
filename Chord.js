@@ -1,6 +1,6 @@
 /**
  * Chord is a specialized subclass of ScoreComposite. It must contain a
- * NoteGroup and may contain an Articulation and/or a DotGroup.
+ * NoteGroup and may contain an Articulation and/or a DotGroup and/or a Beam.
  * Under the hood, the NoteGroup is at index 0, and the indices of other
  * special children are maintained dynamically.
  */
@@ -15,9 +15,12 @@ Renderer.Chord = function(id,duration,numDots,articulation) {
     var curIndex = 1;
     this.add(new Renderer.Articulation(null,articulation));
     this._articulationIndex = curIndex;
-    curIndex ++;
+    curIndex++;
     this.add(new Renderer.DotGroup(null));
     this._dotGroupIndex = curIndex;
+    curIndex++;
+    this.add(new Renderer.Beam(null,duration));
+    this._beamIndex = curIndex;
 };
 
 Renderer.Chord.prototype = new Renderer.ScoreComposite();
@@ -39,7 +42,9 @@ Renderer.Chord.prototype.updateDuration = function(duration) {
         for (var i = 0; i < this.noteGroup.children.length; i++) {
             this.noteGroup.children[i].updateChord(this);
         }
+        this.updateBeam();
     }
+    
 };
 
 Renderer.Chord.prototype.updateNumDots = function(numDots) {
@@ -48,6 +53,10 @@ Renderer.Chord.prototype.updateNumDots = function(numDots) {
 
 Renderer.Chord.prototype.updateArticulation = function(articulation) {
     this.articulation = new Renderer.Articulation(null,articulation);
+};
+
+Renderer.Chord.prototype.updateBeam = function(duration) {
+	this.beam = new Renderer.Beam(null,duration);
 };
 
 //Utility function to sort the noteheads by pitch ascending or descending
@@ -79,7 +88,8 @@ Renderer.Chord.prototype.drawStem = function(ctx,x,y) {
     if (this.stems[this.duration]) {
         ctx.save();
         ctx.translate(x,y);
-        Renderer.LineContext.drawBlackLine(ctx,0,this.stemStartY,0,this.stemEndY);
+        var stemX = this.stemDirection == 1 ? 1 : 0;
+        Renderer.LineContext.drawBlackLine(ctx,stemX,this.stemStartY,stemX,this.stemEndY);
         ctx.restore();
     }
 };
@@ -142,6 +152,10 @@ Renderer.Chord.prototype.accept = function(formatter) {
     formatter.formatChord(this);
 };
 
+Renderer.Chord.prototype.generateSims = function(simFormatter) {
+	simFormatter.addChordSim(this);
+},
+
 Renderer.Chord.prototype.stems = {
     1:   false,
     2:   true,
@@ -162,6 +176,15 @@ Object.defineProperty(Renderer.Chord.prototype,"noteGroup", {
     }
 });
 
+Object.defineProperty(Renderer.Chord.prototype,"dotGroup", {
+    get: function() {
+        return this.children[this._dotGroupIndex];
+    },
+    set: function(dotGroup) {
+        this.children[this._dotGroupIndex] = dotGroup;
+    }
+});
+
 Object.defineProperty(Renderer.Chord.prototype,"articulation", {
     get: function() {
         return this.children[this._articulationIndex];
@@ -171,11 +194,11 @@ Object.defineProperty(Renderer.Chord.prototype,"articulation", {
     }
 });
 
-Object.defineProperty(Renderer.Chord.prototype,"dotGroup", {
+Object.defineProperty(Renderer.Chord.prototype,"beam", {
     get: function() {
-        return this.children[this._dotGroupIndex];
+        return this.children[this._beamIndex];
     },
-    set: function(dotGroup) {
-        this.children[this._dotGroupIndex] = dotGroup;
+    set: function(beam) {
+        this.children[this._beamIndex] = beam;
     }
 });

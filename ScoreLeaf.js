@@ -9,6 +9,7 @@ Renderer.ScoreLeaf = function(id) {
     this._glyph = null;
     this.xStretchability = 0; //Leaves cannot be stretched
     this.xShrinkability = 0;  //or shrunk
+    this.scale = 1;
 };
 
 Renderer.ScoreLeaf.prototype = {
@@ -20,7 +21,7 @@ Renderer.ScoreLeaf.prototype = {
             y = y+realRender.y;
             //this.drawCrosshair(ctx,x,y);
             //this.drawBoundingBox(ctx,x,y);
-            this.glyph.draw(ctx,x,y);
+            this.glyph.draw(ctx,x,y,this.scale);
         }
     },
     
@@ -49,6 +50,10 @@ Renderer.ScoreLeaf.prototype = {
     //Visitor methods
     //Should be overriden by subclass for custom formatting
     accept: function(formatter) {},
+    
+    //Should be overriden in subclasses that contribute to
+    //the building of sims (chiefly measure and chord)
+    generateSims: function(simFormatter) {},
     
     //Debugging methods
     drawCrosshair: function(ctx,x,y) {

@@ -75,7 +75,6 @@ Renderer.ScoreComposite.prototype = {
         if (this.children.length) {
             for (var i = 0; i < this.children.length; i++) {
                 extrema = this.children[i].displayInfo.getRealRenderExtrema();
-                
                 if (extrema.minX < minX) {
                     minX = extrema.minX;
                 }
@@ -139,6 +138,10 @@ Renderer.ScoreComposite.prototype = {
     //Visitor methods
     //Should be overriden by subclass for custom formatting
     accept: function(formatter) {},
+    
+    //Should be overriden in subclasses that contribute to
+    //the building of sims (chiefly measure and chord)
+    generateSims: function(simFormatter) {},
     
     //Debugging Methods
     logId: function() {

@@ -22,6 +22,10 @@ Renderer.Voice.prototype.accept = function(formatter) {
     formatter.formatVoice(this);
 };
 
+Renderer.Voice.prototype.generateSims = function(simFormatter) {
+	simFormatter.newVoice();
+};
+
 Renderer.Voice.prototype.drawStaffLines = function(ctx,x,y) {
     ctx.save();
     ctx.translate(x,y);

@@ -30,6 +30,7 @@
 	    <script type="text/javascript" src="Clef.js"></script>
 	    <script type="text/javascript" src="TimeSignature.js"></script>
 	    <script type="text/javascript" src="KeySignature.js"></script>
+	    <script type="text/javascript" src="Beam.js"></script>
 	    <script type="text/javascript" src="Chord.js"></script>
 	    <script type="text/javascript" src="Rest.js"></script>
 	    <script type="text/javascript" src="RestElement.js"></script>
@@ -54,111 +55,87 @@
                 //canvas.style.marginLeft = "20px";
                 
                 
-                // var score = new Renderer.Score('a');
-                // var part = new Renderer.Part('b');
-                // var voice = new Renderer.Voice('c');
-                // var measure = new Renderer.Measure('d');
-                // var measure2 = new Renderer.Measure('h');
                 var clef = new Renderer.Clef('e','gClef',-1);
                 var timeSig = new Renderer.TimeSignature('l',[4],[4]);
                 var keySig = new Renderer.KeySignature('m',4);
-                // var note = new Renderer.Note('f',1,8);
-                // var note2 = new Renderer.Note('g',-1,16);
-                // var note3 = new Renderer.Note('i',-2,4);
-                // var note4 = new Renderer.Note('j',-1,2);
-                // var note5 = new Renderer.Note('k',-1,1);
-                // score.add(part);
-                // part.add(voice);
-                // voice.add(measure);
-                // voice.add(measure2);
-                // measure.add(clef);
-                // measure.add(keySig);
-                // measure.add(timeSig);
-                // measure.add(note);
-                // measure.add(note2);
-                // measure2.add(note3);
-                // measure2.add(note4);
-                // measure2.add(note5);
                 
-                // var it = new DepthFirstCompositeIterator(score);
-                // while(it.hasNext()) {
-                //     console.log(it.next().id);
-                // }
+                var score = new Renderer.Score('z');
+                var part1 = new Renderer.Part('y','Baritone');
+                var part2 = new Renderer.Part('x','Baritone');
+                var voice1 = new Renderer.Voice('w');
+                var voice2 = new Renderer.Voice('v');
+                var measure1 = new Renderer.Measure('u');
+                var measure2 = new Renderer.Measure('t');
+                var measure3 = new Renderer.Measure('s');
+                var measure4 = new Renderer.Measure('r');
                 
-                var score = new Renderer.Score('a');
-                var part1 = new Renderer.Part('b','Baritone');
-                var part2 = new Renderer.Part('b','Baritone');
-                var voice = new Renderer.Voice('c');
-                var measure = new Renderer.Measure('d');
-                var measure2 = new Renderer.Measure('e');
-                var measure3 = new Renderer.Measure('e');
+                var chord1 = new Renderer.Chord('a',4,0,null);
+                var chord2 = new Renderer.Chord('b',4,0,null);
+                var chord3 = new Renderer.Chord('c',8,0,null);
+                var chord4 = new Renderer.Chord('d',4,0,null);
+                var chord5 = new Renderer.Chord('e',8,0,null);
+                var chord6 = new Renderer.Chord('f',4,1,null);
+                var chord7 = new Renderer.Chord('g',4,0,null);
+                var chord8 = new Renderer.Chord('h',4,1,null);
+                var chord9 = new Renderer.Chord('i',4,0,null);
+                var chord10 = new Renderer.Chord('j',2,1,null);
+                var chord11 = new Renderer.Chord('k',4,1,null);
+                var chord12 = new Renderer.Chord('l',8,0,null);
+                var chord13 = new Renderer.Chord('m',4,0,null);
                 
-                var chord1 = new Renderer.Chord('z',4,0,null);
-                var chord2 = new Renderer.Chord('y',2,0,null);
-                var chord3 = new Renderer.Chord('y',2,0,null);
-                var chord4 = new Renderer.Chord('y',4,0,null);
-                var chord5 = new Renderer.Chord('y',4,0,null);
-                var chord6 = new Renderer.Chord('y',8,0,null);
-                var chord7 = new Renderer.Chord('y',8,0,null);
-                var chord8 = new Renderer.Chord('x',1,0,null);
-                var chord9 = new Renderer.Chord('x',1,0,null);
-                chord1.addNote(new Renderer.Note('i',1,null,chord1));
-                chord1.addNote(new Renderer.Note('i',-1,null,chord1));
-                chord1.addNote(new Renderer.Note('i',-2,null,chord1));
-                chord1.addNote(new Renderer.Note('i',1.5,null,chord1));
-                chord2.addNote(new Renderer.Note('i',1,null,chord2));
-                chord3.addNote(new Renderer.Note('i',1,null,chord3));
-                chord4.addNote(new Renderer.Note('i',1,null,chord4));
-                chord5.addNote(new Renderer.Note('i',1,null,chord5));
-                chord6.addNote(new Renderer.Note('i',1,null,chord6));
-                chord7.addNote(new Renderer.Note('i',1,null,chord7));
-                chord8.addNote(new Renderer.Note('i',1,null,chord8));
-                chord9.addNote(new Renderer.Note('i',1,null,chord8));
+                chord1.addNote(new Renderer.Note(null,0,null,chord1));
+                chord2.addNote(new Renderer.Note(null,0,null,chord2));
+                chord3.addNote(new Renderer.Note(null,0,null,chord3));
+                chord4.addNote(new Renderer.Note(null,0,null,chord4));
+                chord5.addNote(new Renderer.Note(null,0,null,chord5));
+                chord6.addNote(new Renderer.Note(null,1,null,chord6));
+                chord7.addNote(new Renderer.Note(null,0,null,chord7));
+                chord8.addNote(new Renderer.Note(null,0,null,chord8));
+                chord9.addNote(new Renderer.Note(null,0,null,chord9));
+                chord10.addNote(new Renderer.Note(null,0,'flat',chord10));
+                chord10.addNote(new Renderer.Note(null,-0.5,'flat',chord10));
+                chord10.addNote(new Renderer.Note(null,-2,'flat',chord10));
+                chord11.addNote(new Renderer.Note(null,0,null,chord11));
+                chord12.addNote(new Renderer.Note(null,0,null,chord12));
+                chord13.addNote(new Renderer.Note(null,0,null,chord13));
                 
-                var rest1 = new Renderer.Rest('q',1,0);
-                var rest2 = new Renderer.Rest('q',2,2);
-                var rest3 = new Renderer.Rest('q',4,1);
-                var rest4 = new Renderer.Rest('q',8,0);
+                //var rest1 = new Renderer.Rest('q',1,0);
+                //var rest2 = new Renderer.Rest('q',2,2);
+                //var rest3 = new Renderer.Rest('q',4,1);
+                //var rest4 = new Renderer.Rest('q',8,0);
                 // var rest5 = new Renderer.Rest('q',16,0);
                 // var rest6 = new Renderer.Rest('q',32,0);
                 // var rest7 = new Renderer.Rest('q',64,0);
                 // var rest8 = new Renderer.Rest('q',128,0);
                 
-                measure.add(clef);
-                measure.add(keySig);
-                measure.add(timeSig);
-                measure.add(chord1);
-                measure.add(chord2);
-                measure.add(chord3);
-                measure.add(chord4);
-                measure.add(chord5);
-                measure.add(chord6);
-                measure.add(chord7);
-                //measure.add(rest1);
-                //measure.add(rest2);
-                //measure.add(rest3);
-                //measure.add(rest4);
-                // measure.add(rest5);
-                // measure.add(rest6);
-                // measure.add(rest7);
-                // measure.add(rest8);
-                //measure2.add(chord8);
-                //measure2.add(chord9);
-                voice.add(measure);
-                voice.add(measure2);
-                voice.add(measure3);
-                part1.addVoice(voice);
-                part2.addVoice(voice);
+                //measure1.add(clef);
+                measure1.add(chord1);
+                measure1.add(chord2);
+                measure1.add(chord3);
+                measure1.add(chord4);
+                measure1.add(chord5);
+                //measure2.add(clef);
+                measure2.add(chord6);
+                measure2.add(chord7);
+                measure2.add(chord8);
+                measure3.add(chord9);
+                measure3.add(chord10);
+                measure4.add(chord11);
+                measure4.add(chord12);
+                measure4.add(chord13);
+                
+                voice1.add(measure1);
+                voice1.add(measure3);
+                voice2.add(measure2);
+                voice2.add(measure4);
+                part1.addVoice(voice1);
+                part2.addVoice(voice2);
                 
                 score.add(part1);
-                //score.add(part2)
+                score.add(part2);
                 
                 var sd = new ScoreDisplay(canvas,svg,15,2,6);
                 sd.updateAndRender(score);
-                
-                console.log("Updating articulation.");
-                score.getChild(0).voiceGroup.getChild(0).getChild(0).getChild(4).update(2,1,'staccatissimo');
-                sd.formatAndRender();
                 
                 function locateComponent(id) {
                     var cur = sd.scoreComponent;

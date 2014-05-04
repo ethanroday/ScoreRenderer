@@ -29,14 +29,14 @@ Renderer.Articulation.prototype.isClose = function() {
 };
 
 Renderer.Articulation.prototype.upCodes = {
-    'staccato': 'v6a',
-    'tenuto':   'v77',
+    'staccato':       'v6a',
+    'tenuto':         'v77',
     'staccatissimo':  'v66'
 };
 
 Renderer.Articulation.prototype.downCodes = {
-    'staccato': 'v6a',
-    'tenuto':   'v77',
+    'staccato':       'v6a',
+    'tenuto':         'v77',
     'staccatissimo':  'v28'
 };
 

@@ -8,3 +8,7 @@ Renderer.Score.prototype.constructor = Renderer.Score;
 Renderer.Score.prototype.accept = function(formatter) {
     formatter.formatScore(this);
 };
+
+Renderer.Score.prototype.generateSims = function(simFormatter) {
+    simFormatter.formatSims();
+};
