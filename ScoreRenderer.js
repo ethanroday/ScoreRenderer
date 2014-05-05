@@ -61,38 +61,39 @@ Renderer.ScoreRenderer.prototype = {
             next = iterator.next();
             next.generateSims(this);
         }
+        this.simFormatter.logSims();
         iterator = this.scoreDisplay.scoreComponent.createDFIterator();
         while (iterator.hasNext()) {
             next = iterator.next();
             next.accept(this);
         }
+        this.simFormatter.reset();
     },
     
     //Visitor methods
     
     formatScore: function(score) {
-    	console.log("LEVEL: score");
+    	//console.log("LEVEL: score");
         this.scoreFormatter.format(score);
     },
     
     formatPart: function(part) {
-    	console.log("LEVEL: part");
+    	//console.log("LEVEL: part");
         this.partFormatter.format(part);
     },
     
     formatVoice: function(voice) {
-    	console.log("LEVEL: voice");
+    	//console.log("LEVEL: voice");
         this.voiceFormatter.format(voice);
     },
     
     formatMeasure: function(measure) {
-    	console.log("LEVEL: measure");
-    	
+    	//console.log("LEVEL: measure");
         this.measureFormatter.format(measure);
     },
     
     formatChord: function(chord) {
-    	console.log("LEVEL: chord");
+    	//console.log("LEVEL: chord");
         this.chordFormatter.format(chord);
     },
     
@@ -102,6 +103,10 @@ Renderer.ScoreRenderer.prototype = {
     
     addChordSim: function(chord) {
     	this.simFormatter.addChordSim(chord);
+    },
+    
+    addNonDurationalSim: function(node) {
+    	this.simFormatter.addNonDurational(node);
     },
     
     newVoice: function() {
@@ -458,7 +463,6 @@ Renderer.MeasureFormatter.prototype = {
         var width = this.currentMeasure.displayInfo.width;
         this.currentMeasure.calculateCurrentMetrics();
         this.currentMeasure.displayInfo.width = width;
-        
     },
     
     positionChords: function() {
@@ -593,10 +597,7 @@ Renderer.ScoreFormatter.prototype = {
 };
 
 Renderer.SimFormatter = function() {
-	this.curNeighborhood = -1;
-	this.beatIndex = 0;
-	this.sims = [];
-	this.nextNeighborhood();
+	this.reset();
 };
 
 Renderer.SimFormatter.prototype = {
@@ -620,20 +621,37 @@ Renderer.SimFormatter.prototype = {
 	
 	addChordSim: function(chord) {
 		console.log("SIMS: Adding chord sim to "+this.curNeighborhood+" at "+this.beatIndex);
-		this.linearInsertSim({
+		var i = this.linearInsertionIndex();
+		var neighborhood = this.sims[this.curNeighborhood]; 
+		neighborhood.sims[i].listOfNotes.push({
 			noteRef: chord,
 			usedUp: 0
 		});
+		if (1/chord.duration < neighborhood.shortestDuration) {
+			neighborhood.shortestDuration = 1/chord.duration;
+		}
 		this.beatIndex += 1/chord.getDurationWithDots(); 
 		console.log("SIMS: Augmenting beatIndex to "+this.beatIndex);
 	},
 	
+	addNonDurational: function(node) {
+		console.log("SIMS: Adding non-durational sim to "+this.curNeighborhood+" at "+this.beatIndex);
+		console.log(node);
+		var i = this.linearInsertionIndex();
+		var sim = this.sims[this.curNeighborhood].sims[i];
+		if (!sim.nonDurational[this.voiceIndex]) {
+			sim.nonDurational[this.voiceIndex] = [];
+		}
+		sim.nonDurational[this.voiceIndex].push(node);
+	},
+	
 	newVoice: function() {
 		console.log("SIMS: Entering a new voice.");
+		this.voiceIndex += 1;
 		this.curNeighborhood = 0;
 	},
 	
-	linearInsertSim: function(sim) {
+	linearInsertionIndex: function(sim) {
 		var i = 0;
 		var neighborhood = this.sims[this.curNeighborhood];
 		while (i < neighborhood.sims.length && neighborhood.sims[i].beatIndex < this.beatIndex) {
@@ -643,13 +661,11 @@ Renderer.SimFormatter.prototype = {
 			neighborhood.sims.splice(i,0,{
 				beatIndex: this.beatIndex,
 				listOfNotes: [],
-				spaceAfterSim: 0
+				spaceAfterSim: 0,
+				nonDurational: []
 			});
-		} 
-		neighborhood.sims[i].listOfNotes.push(sim);
-		if (1/sim.noteRef.duration < neighborhood.shortestDuration) {
-			neighborhood.shortestDuration = 1/sim.noteRef.duration;
 		}
+		return i;
 	},
 	
 	format: function() {
@@ -657,6 +673,7 @@ Renderer.SimFormatter.prototype = {
 		//First, remove the last neighborhood, which is empty and only
 		//exists as a byproduct of the last nextNeighborhood() call.
 		this.sims.pop();
+		console.log(this.sims);
 		
 		var i,j,h;
 		var k;
@@ -668,11 +685,12 @@ Renderer.SimFormatter.prototype = {
 			k = this.calculateK(neighborhood);
 			console.log("SIMS: k is "+k);
 			for (j = 0; j < neighborhood.sims.length; j++) {
+				var sim = neighborhood.sims[j];
+				curX = this.spaceNonDurational(sim,curX);
 				var nextSim = null;
 				if (j < neighborhood.sims.length-1) {//i.e. if there is a next sim
 					nextSim = neighborhood.sims[j+1];
 				}
-				var sim = neighborhood.sims[j];
 				var notes = sim.listOfNotes;
 				console.log("SIMS: formatting sim "+j);
 				var shortest = 1/this.minimumDuration(notes);
@@ -704,7 +722,6 @@ Renderer.SimFormatter.prototype = {
 							});
 						}
 					}
-	
 				}
 				curX += sim.spaceAfterSim;
 			}
@@ -717,6 +734,31 @@ Renderer.SimFormatter.prototype = {
 			}
 			
 		}
+	},
+	
+	spaceNonDurational: function(sim,curX) {
+		var nonDurational = sim.nonDurational;
+		var i,j;
+		var width = -Infinity;
+		var longest = -Infinity;
+		for(i = 0; i < nonDurational.length; i++){
+			longest = Math.max(nonDurational[i].length,longest);
+		}
+		var voiceWidth;
+		for(i = 0; i < nonDurational.length; i++){
+			voiceWidth = 0;
+			for (j = 0; j < longest; j++) {
+				if (nonDurational[i][j]) {
+					nonDurational[i][j].displayInfo.renderX = voiceWidth;
+					voiceWidth += nonDurational[i][j].displayInfo.width+0.5;
+					
+				} else {
+					break;
+				}
+			}
+			width = Math.max(voiceWidth,width);
+		};
+		return curX+Math.max(width,0);
 	},
 	
 	//Following Gourlay, implements the ideal width algorithm
@@ -747,9 +789,11 @@ Renderer.SimFormatter.prototype = {
     },
 	
 	reset: function() {
-		this.curNeighborhood = 0;
+		this.curNeighborhood = -1;
 		this.beatIndex = 0;
+		this.voiceIndex = 0;
 		this.sims = [];
+		this.nextNeighborhood();
 	},
 	
 	logSims: function() {

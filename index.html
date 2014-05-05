@@ -1,4 +1,5 @@
 <html>
+	<title>ScoreRenderer</title>
 	<head>
 	    <link rel="stylesheet" type="text/css" href="Fonts/Gonville/stylesheet.css">
 	    <script src="https://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.1.min.js"></script>
@@ -47,12 +48,10 @@
                 
                 var canvas = document.getElementById("canvas"); //Get the canvas
                 var svg = document.getElementById("cursorSvg"); //Get the SVG
-                canvas.height = 600;
-                svg.height = 600;
-                canvas.width = 600;
-                svg.width = 600;
-                canvas.style.border = "2px solid #000"; //Add a border (for debugging)
-                //canvas.style.marginLeft = "20px";
+                canvas.height = window.innerHeight;
+                svg.height = window.innerHeight;
+                canvas.width = window.innerWidth;
+                svg.width = window.innerWidth;
                 
                 
                 var clef = new Renderer.Clef('e','gClef',-1);
@@ -108,13 +107,14 @@
                 // var rest7 = new Renderer.Rest('q',64,0);
                 // var rest8 = new Renderer.Rest('q',128,0);
                 
-                //measure1.add(clef);
+                measure1.add(clef);
+                measure1.add(keySig);
                 measure1.add(chord1);
                 measure1.add(chord2);
                 measure1.add(chord3);
                 measure1.add(chord4);
                 measure1.add(chord5);
-                //measure2.add(clef);
+                measure2.add(clef);
                 measure2.add(chord6);
                 measure2.add(chord7);
                 measure2.add(chord8);

@@ -29,6 +29,10 @@ Renderer.TimeSignature.prototype.canBeComplex = function() {
 	return this.top[0] % 3 == 0;
 };
 
+Renderer.TimeSignature.prototype.generateSims = function(simFormatter) {
+	simFormatter.addNonDurationalSim(this);
+};
+
 Renderer.TimeSignature.prototype.numbers = {
     0: 'v0',
     1: 'v1',

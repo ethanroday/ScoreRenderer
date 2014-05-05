@@ -27,6 +27,11 @@ Renderer.KeySignature.prototype.update = function(key) {
     this.glyph = new Renderer.GlyphComposite(glyphs, pos);
 };
 
+Renderer.KeySignature.prototype.generateSims = function(simFormatter) {
+	console.log("Adding nondurational for key with width "+this.displayInfo.width);
+	simFormatter.addNonDurationalSim(this);
+};
+
 Renderer.KeySignature.prototype.sharp = 'v18';
 
 Renderer.KeySignature.prototype.flat = 'v44';

@@ -3,10 +3,14 @@ Renderer.Clef = function(id,letter,line) {
     this.displayInfo.renderY = -line;
     var code = this.codes[letter];
     this.glyph = Renderer.GlyphFactory.createGlyph(code);
-}
+};
 
 Renderer.Clef.prototype = new Renderer.ScoreLeaf();
 Renderer.Clef.prototype.constructor = Renderer.Clef;
+
+Renderer.Clef.prototype.generateSims = function(simFormatter) {
+	simFormatter.addNonDurationalSim(this);
+};
 
 Renderer.Clef.prototype.codes = {
     'gClef': 'v83',
