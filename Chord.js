@@ -7,7 +7,6 @@
 
 Renderer.Chord = function(id,duration,numDots,articulation) {
     Renderer.ScoreComposite.call(this,id);
-    this.displayInfo.controlPoint = 'origin';
     this.id = id;
     this.duration = duration;
     this.numDots = numDots;
@@ -149,7 +148,7 @@ Renderer.Chord.prototype.calculateMyMetrics = function() {
 };
 
 Renderer.Chord.prototype.accept = function(formatter) {
-    formatter.formatChord(this);
+    //formatter.formatChord(this);
 };
 
 Renderer.Chord.prototype.generateSims = function(simFormatter) {

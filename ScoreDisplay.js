@@ -1,6 +1,7 @@
 var ScoreDisplay = function(canvas,svg,scale,xPadding,yPadding) {
     this.touchManager = new TouchManager(canvas);
     this.ctx = canvas.getContext('2d');
+    this.svg = svg;
     this.renderer = new Renderer.ScoreRenderer(this,scale,xPadding,yPadding);
     this.cursor = new ScoreCursor(svg,scale,xPadding,yPadding);
     
@@ -35,6 +36,13 @@ ScoreDisplay.prototype = {
     updateAndRender: function(newScore) {
         this.updateScore(newScore);
         this.formatAndRender();
+    },
+    
+    resize: function(width,height) {
+    	this.ctx.canvas.width = width;
+    	this.ctx.canvas.height = height;
+    	this.svg.setAttribute('width',width);
+    	this.svg.setAttribute('height',height);
     }
     
 };

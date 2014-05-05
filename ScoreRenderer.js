@@ -7,8 +7,7 @@ Renderer.ScoreRenderer = function(sd,scale,xPadding,yPadding) {
     Renderer.LineContext.setHorizScale(Renderer.HORIZ_MULTIPLIER);
     
     this.scoreFormatter = new Renderer.ScoreFormatter();
-    //PartFormatter needs a context so it can measure the width and height of text
-    this.partFormatter = new Renderer.PartFormatter(this.scoreDisplay.ctx);
+    this.partFormatter = new Renderer.PartFormatter(this.scoreDisplay);
     this.voiceFormatter = new Renderer.VoiceFormatter();
     this.measureFormatter = new Renderer.MeasureFormatter();
     this.chordFormatter = new Renderer.ChordFormatter();
@@ -68,6 +67,10 @@ Renderer.ScoreRenderer.prototype = {
             next.accept(this);
         }
         this.simFormatter.reset();
+        this.scoreDisplay.resize(
+        	this.scoreDisplay.scoreComponent.displayInfo.width*this.scale+this.startX*this.scale+this.scale,
+        	this.scoreDisplay.scoreComponent.displayInfo.height*this.scale+this.startY*this.scale+this.scale
+        );
     },
     
     //Visitor methods
@@ -102,6 +105,7 @@ Renderer.ScoreRenderer.prototype = {
     },
     
     addChordSim: function(chord) {
+    	this.formatChord(chord);
     	this.simFormatter.addChordSim(chord);
     },
     
@@ -562,15 +566,9 @@ Renderer.PartFormatter = function(ctx) {
 Renderer.PartFormatter.prototype = {
     format: function(part) {
         this.currentPart = part;
-        //this.formatName();
+        this.currentPart.voiceGroup.calculateCurrentMetrics();
         this.currentPart.calculateCurrentMetrics();
-    },
-    
-    formatName: function() {
-        var metrics = this.ctx.measureText(this.name);
-        this.currentPart.name.displayInfo.width = metrics.width;
-        this.currentPart.name.displayInfo.height = metrics.height;
-        this.currentPart.name.displayInfo.renderX = -this.namePadding;
+        console.log("Metrics for part: "+this.currentPart.displayInfo.width+","+this.currentPart.displayInfo.height);
     }
 };
 
@@ -583,6 +581,9 @@ Renderer.ScoreFormatter.prototype = {
     format: function(score) {
         this.currentScore = score;
         this.positionParts();
+        this.currentScore.calculateCurrentMetrics();
+        console.log("Metrics for score: "+this.currentScore.displayInfo.width+","+this.currentScore.displayInfo.height);
+        //this.breakLines();
     },
     
     positionParts: function() {
@@ -593,6 +594,30 @@ Renderer.ScoreFormatter.prototype = {
             part.displayInfo.renderY = curY;
             curY += this.spaceBetweenStaves;
         }
+        this.systemHeight = this.currentScore.children.length*this.spaceBetweenStaves+4;
+    },
+    
+    breakLines: function() {
+    	curY = 0;
+    	var numMeasures = this.currentScore.children[0].voiceGroup.children[0].children.length;
+    	console.log("numMeasures is "+numMeasures);
+    	for (var i = 0; i < numMeasures; i++) {
+    		this.positionMeasureInAllVoices(curY,i);
+    		curY += this.systemHeight;
+    	}
+    },
+    
+    positionMeasureInAllVoices: function(y,measureIndex) {
+    	console.log("Positioning measure "+measureIndex+" at "+y);
+    	var i,j;
+    	var part,voice;
+    	for (i = 0; i < this.currentScore.children.length; i++) {
+    		part = this.currentScore.children[i];
+    		for (j = 0; j < part.voiceGroup.children.length; j++) {
+    			voice = part.voiceGroup.children[j];
+    			voice.children[measureIndex].displayInfo.renderY += y;
+    		}
+    	}
     }
 };
 
@@ -703,11 +728,14 @@ Renderer.SimFormatter.prototype = {
 				}
 				console.log("SIMS: fraction is "+fraction);
 				sim.spaceAfterSim = fraction*this.spaceAfterDuration(shortest,k);
+				
+				
 				for (var h = 0; h < notes.length; h++) {
 					var note = notes[h];
 					
 					if (note.usedUp == 0) {
 						note.noteRef.displayInfo.renderX = curX;
+						
 					}
 					
 					var usedUp;
@@ -723,7 +751,25 @@ Renderer.SimFormatter.prototype = {
 						}
 					}
 				}
-				curX += sim.spaceAfterSim;
+				
+				var widest = 0;
+				if (nextSim) {
+					console.log(nextSim);
+					notes = nextSim.listOfNotes;
+					for (var h = 0; h < notes.length; h++) {
+						if (note.usedUp == 0) {
+							widest = Math.max(widest,-notes[h].noteRef.displayInfo.topLeftX);
+							
+							var display = notes[h].noteRef.displayInfo;
+							console.log(display.topLeftX);
+						}
+						
+					}
+					console.log("SIMS: Widest note in next sim has width of "+widest);
+					console.log("SIMS: Space after this sim (vs widest) "+sim.spaceAfterSim);
+				}
+				widest = widest == 0 ? 0 : widest+2.5;
+				curX += Math.max(sim.spaceAfterSim,widest);
 			}
 			var neighborhoodRef;
 			for (j = 0; j < neighborhood.neighborhoodRefs.length; j++) {
@@ -751,7 +797,6 @@ Renderer.SimFormatter.prototype = {
 				if (nonDurational[i][j]) {
 					nonDurational[i][j].displayInfo.renderX = voiceWidth;
 					voiceWidth += nonDurational[i][j].displayInfo.width+0.5;
-					
 				} else {
 					break;
 				}
